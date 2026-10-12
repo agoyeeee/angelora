@@ -26,6 +26,7 @@ import { CameraStage } from '../components/booth/CameraStage'
 import { CameraStatusPanel } from '../components/booth/CameraStatusPanel'
 import { ShotGrid } from '../components/booth/ShotGrid'
 import { FramePicker } from '../components/result/FramePicker'
+import { StripPreview } from '../components/result/StripPreview'
 import { SessionSettings } from '../components/booth/SessionSettings'
 import { DevicePicker } from '../components/booth/DevicePicker'
 import { BoothActions } from '../components/booth/BoothActions'
@@ -298,14 +299,35 @@ function BoothPage() {
                       }
                     />
                     <div role="presentation" className="h-px bg-white/8" />
-                    <FramePicker
-                      value={session.frame}
-                      disabled={capturing}
-                      gridClassName="grid-cols-3 sm:grid-cols-4 lg:grid-cols-5"
-                      onChange={(frame: FrameId) =>
-                        dispatch({ type: 'setFrame', frame })
-                      }
-                    />
+                    <div className="grid items-start gap-5 sm:grid-cols-[minmax(0,1fr)_11.5rem]">
+                      <FramePicker
+                        value={session.frame}
+                        disabled={capturing}
+                        gridClassName="grid-cols-3 lg:grid-cols-4"
+                        onChange={(frame: FrameId) =>
+                          dispatch({ type: 'setFrame', frame })
+                        }
+                      />
+                      <div className="mx-auto w-40 sm:sticky sm:top-24 sm:w-full">
+                        <p className="mb-2 font-mono text-[0.65rem] uppercase tracking-[0.24em] text-fog-500">
+                          Preview
+                        </p>
+                        <StripPreview
+                          session={session}
+                          urls={urls}
+                          compact
+                          live={
+                            ready
+                              ? {
+                                  videoRef: camera.videoRef,
+                                  overlayRef: faceEffect.canvasRef,
+                                  mirror: session.mirrorPreview,
+                                }
+                              : null
+                          }
+                        />
+                      </div>
+                    </div>
                   </Card>
                 </motion.div>
 
