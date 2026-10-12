@@ -33,7 +33,7 @@ describe('EffectPicker', () => {
     const onChange = vi.fn()
     render(<EffectPicker value="none" onChange={onChange} disabled />)
 
-    const button = screen.getByRole('button', { name: 'Anjing face filter' })
+    const button = screen.getByRole('button', { name: 'Santa face filter' })
     expect(button).toBeDisabled()
     await user.click(button)
     expect(onChange).not.toHaveBeenCalled()

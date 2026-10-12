@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { MODEL_CREDITS } from '../features/photobooth/face/credits'
 import { SiteLayout } from '../components/layout/SiteLayout'
 import { buttonVariants } from '../components/ui/button-variants'
 import { Eyebrow } from '../components/ui/Eyebrow'
@@ -184,6 +185,53 @@ function PrivacyPage() {
               </div>
             ))}
           </dl>
+        </section>
+
+        <section className="mt-14" aria-labelledby="credits">
+          <h2
+            id="credits"
+            className="text-xl font-semibold tracking-tight text-fog-100 sm:text-2xl"
+          >
+            Credits
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-fog-400">
+            The 3D face filters use free models by the artists below, under
+            Creative Commons licences. The halo, clown nose, heart eyes and
+            mustache are made in code. Face tracking is MediaPipe (Apache-2.0)
+            and rendering is three.js (MIT).
+          </p>
+          <ul className="mt-6 divide-y divide-white/8 overflow-hidden rounded-card border border-white/10 bg-ink-850/70">
+            {MODEL_CREDITS.map((credit) => (
+              <li
+                key={credit.effect}
+                className="flex flex-col gap-1 p-4 text-sm sm:flex-row sm:items-baseline sm:gap-4"
+              >
+                <span className="w-32 shrink-0 font-medium text-fog-100">
+                  {credit.effect}
+                </span>
+                <span className="text-fog-300">
+                  by {credit.author} —{' '}
+                  <a
+                    href={credit.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="underline decoration-white/25 underline-offset-2 hover:text-fog-100"
+                  >
+                    source
+                  </a>
+                  ,{' '}
+                  <a
+                    href={credit.licenseUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="underline decoration-white/25 underline-offset-2 hover:text-fog-100"
+                  >
+                    {credit.license}
+                  </a>
+                </span>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <div className="mt-14 flex flex-wrap items-center gap-3">

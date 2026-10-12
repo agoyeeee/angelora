@@ -154,7 +154,7 @@ describe('isSessionComplete', () => {
   })
 
   it('setEffect changes only the face effect', () => {
-    const next = sessionReducer(DEFAULT_SESSION, { type: 'setEffect', effect: 'dog' })
-    expect(next).toEqual({ ...DEFAULT_SESSION, effect: 'dog' })
+    const next = sessionReducer(DEFAULT_SESSION, { type: 'setEffect', effect: 'crown' })
+    expect(next).toEqual({ ...DEFAULT_SESSION, effect: 'crown' })
   })
 })
