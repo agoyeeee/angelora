@@ -10,7 +10,7 @@ no upload. Everything runs on your device.
 ## How it works
 
 1. **Start camera** — grant camera access when your browser asks. Optionally pick a
-   **face filter** (dog ears, cat whiskers, crown, shades, …) that follows your face
+   **face filter** (3D shades, crown, cat ears, hats, …) that follows your face
    live and is baked into each shot, and a **frame** for the strip.
 2. **Pose** — a short countdown runs before each shot (3 or 5 seconds).
 3. **Save your strip** — choose a colour filter, then download the PNG.
@@ -26,13 +26,29 @@ download). Privacy details live at `/privacy`.
 
 ## Face filters
 
-Face-tracked effects use MediaPipe Face Landmarker, entirely in the browser. The
-WASM runtime is copied from `node_modules` into `public/mediapipe/` by
-`scripts/copy-mediapipe-wasm.mjs` (runs automatically before `dev` and `build`;
-the folder is ignored by version control) and the model lives in `public/models/`.
-Both are served from our own origin, and the library is lazy-loaded the first time
-a filter is chosen. Effects are drawn in `src/features/photobooth/face/effects.ts` —
-add one by extending `EffectId` in `types.ts` and the `DRAWERS`/`EFFECTS` tables.
+Face filters are real 3D accessories (glasses, hats, ears, headphones, …) that
+follow your head live and are baked into each shot. They are picked in the booth,
+before the first shot.
+
+- **Tracking** — MediaPipe Face Landmarker, entirely in the browser. Besides
+  landmarks it returns the head's 4x4 pose matrix, which positions everything.
+- **Rendering** — three.js on a transparent canvas laid over the video
+  (`src/features/photobooth/face/scene3d.ts`). Two invisible depth-only meshes (the
+  canonical face and a cranium ellipsoid) hide accessories behind the head.
+- **Models** — small `.glb` files in `public/models/filters/`; the halo, clown nose,
+  heart eyes and mustache are built in code (`procedural.ts`). Placement lives in
+  `effect-specs.ts`, in canonical-face centimetres (`canonical.ts`). To add a
+  filter: drop a `.glb` in, add an id to `EffectId` (`types.ts`), a picker entry in
+  `effects.ts` and a spec in `effect-specs.ts`, and credit it in `CREDITS.md` /
+  `credits.ts` (the unit tests check this).
+- **Licences** — most models are CC-BY, so attribution is required: see
+  `public/models/filters/CREDITS.md`; the same list is shown on the Privacy &
+  credits page.
+- **Assets and privacy** — the MediaPipe WASM runtime is copied from `node_modules`
+  into `public/mediapipe/` by `scripts/copy-mediapipe-wasm.mjs` (automatic before
+  `dev` and `build`; the folder is ignored by version control). Runtime, model and
+  library are all served from our own origin, and MediaPipe + three.js are lazy
+  loaded the first time a filter is chosen — nothing is sent anywhere.
 
 ## Privacy
 
@@ -52,6 +68,7 @@ add one by extending `EffectId` in `types.ts` and the `DRAWERS`/`EFFECTS` tables
 - **Routing**: TanStack Router (file-based)
 - **Animation**: Motion for React (`motion`)
 - **Icons**: `lucide-react`
+- **Face filters**: MediaPipe Face Landmarker + three.js (lazy-loaded)
 - **Camera / images**: `navigator.mediaDevices.getUserMedia()` + Canvas 2D
 - **Tests**: Vitest + React Testing Library; Playwright (E2E)
 - **Lint**: ESLint (flat config) + TypeScript checks

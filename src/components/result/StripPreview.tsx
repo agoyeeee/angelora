@@ -9,6 +9,8 @@ import {
 } from '../../features/photobooth/frames'
 import { cn, formatDateLabel } from '../../lib/utils'
 import { crossfade } from '../motion/variants'
+import { LiveSlot } from '../booth/LiveSlot'
+import type { LiveSource } from '../booth/LiveSlot'
 import type { BoothSession } from '../../features/photobooth/types'
 
 /**
@@ -29,10 +31,23 @@ export type StripPreviewProps = {
   session: BoothSession
   /** Object URLs keyed by shot id, from `useShotUrls`. */
   urls: Record<string, string>
+  /**
+   * Booth mode: empty slots show the live camera instead of a blank, so a
+   * frame choice previews on the user's own face.
+   */
+  live?: LiveSource | null
+  /** Small variant for the booth: tighter padding, narrower strip, no caption line. */
+  compact?: boolean
   className?: string
 }
 
-export function StripPreview({ session, urls, className }: StripPreviewProps) {
+export function StripPreview({
+  session,
+  urls,
+  live = null,
+  compact = false,
+  className,
+}: StripPreviewProps) {
   const layout = computeStripLayout(session.shotCount)
   const theme = getFrameTheme(session.frame)
   const filterCss = getFilterCss(session.filter)
@@ -53,7 +68,8 @@ export function StripPreview({ session, urls, className }: StripPreviewProps) {
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-card border border-white/10 bg-ink-850/60 p-5 shadow-card sm:p-8',
+        'relative overflow-hidden rounded-card border border-white/10 bg-ink-850/60 shadow-card',
+        compact ? 'p-3' : 'p-5 sm:p-8',
         className,
       )}
     >
@@ -84,7 +100,12 @@ export function StripPreview({ session, urls, className }: StripPreviewProps) {
         <div
           role="img"
           aria-label={`Photostrip preview: ${session.shots.length} photos, ${filterLabel} filter, ${frameLabel} frame`}
-          className="@container relative mx-auto [--strip-max:15rem] sm:[--strip-max:18rem] md:[--strip-max:20rem] lg:[--strip-max:22rem]"
+          className={cn(
+            '@container relative mx-auto',
+            compact
+              ? '[--strip-max:9rem] sm:[--strip-max:11rem]'
+              : '[--strip-max:15rem] sm:[--strip-max:18rem] md:[--strip-max:20rem] lg:[--strip-max:22rem]',
+          )}
           style={{
             width: `min(100%, var(--strip-max), calc(1400px * ${(layout.width / layout.height).toFixed(4)}))`,
             aspectRatio: `${layout.width} / ${layout.height}`,
@@ -130,6 +151,8 @@ export function StripPreview({ session, urls, className }: StripPreviewProps) {
                         className="size-full object-cover"
                         style={{ filter: filterCss }}
                       />
+                    ) : live ? (
+                      <LiveSlot source={live} filterCss={filterCss} />
                     ) : (
                       <span
                         aria-hidden
@@ -207,9 +230,11 @@ export function StripPreview({ session, urls, className }: StripPreviewProps) {
         </div>
       </div>
 
-      <p className="relative mt-5 text-center font-mono text-xs uppercase tracking-[0.24em] text-fog-500">
-        {session.shots.length} photos · {filterLabel} · {frameLabel}
-      </p>
+      {compact ? null : (
+        <p className="relative mt-5 text-center font-mono text-xs uppercase tracking-[0.24em] text-fog-500">
+          {session.shots.length} photos · {filterLabel} · {frameLabel}
+        </p>
+      )}
     </div>
   )
 }

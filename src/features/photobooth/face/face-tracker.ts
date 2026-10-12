@@ -1,6 +1,10 @@
 /**
- * On-device face tracking for the AR effects, backed by MediaPipe's Face
+ * On-device face tracking for the 3D face filters, backed by MediaPipe's Face
  * Landmarker.
+ *
+ * Besides landmarks, the model returns a 4x4 *facial transformation matrix*: the
+ * head's pose (rotation + translation) in camera space, in centimetres. That is
+ * what the 3D scene uses to glue accessories to the user's head.
  *
  * Privacy: the WASM runtime (`/mediapipe/`, copied from node_modules at build
  * time) and the model (`/models/face_landmarker.task`) are served from this
@@ -9,20 +13,19 @@
  * pick a face filter never download it.
  */
 
-import { geometryFromLandmarks, smoothGeometry } from './geometry'
-import type { FaceGeometry } from './geometry'
+export type FaceFrame = {
+  /** Column-major 4x4 head pose (canonical face space -> camera space), or null with no face. */
+  matrix: Float32Array | null
+}
 
 export type FaceTracker = {
   /**
-   * Run detection on the current video frame. Returns the (smoothed) face
-   * geometry, or `null` when no face is visible. Cheap to call every frame; it
-   * skips work when the video has not advanced.
+   * Run detection on the current video frame. Cheap to call every animation
+   * frame: it reuses the last result when the video has not advanced.
    */
-  detect(video: HTMLVideoElement): FaceGeometry | null
+  detect(video: HTMLVideoElement): FaceFrame
   close(): void
 }
-
-const SMOOTHING_ALPHA = 0.55
 
 const baseUrl = (): string => {
   const base = import.meta.env.BASE_URL || '/'
@@ -43,6 +46,7 @@ export async function createFaceTracker(): Promise<FaceTracker> {
       baseOptions: { modelAssetPath, delegate },
       runningMode: 'VIDEO',
       numFaces: 1,
+      outputFacialTransformationMatrixes: true,
     })
 
   let landmarker: Awaited<ReturnType<typeof create>>
@@ -54,13 +58,13 @@ export async function createFaceTracker(): Promise<FaceTracker> {
 
   let lastVideoTime = -1
   let lastTimestamp = 0
-  let smoothed: FaceGeometry | null = null
+  let last: FaceFrame = { matrix: null }
 
   return {
     detect(video) {
-      if (video.readyState < 2 || video.videoWidth <= 0) return smoothed
+      if (video.readyState < 2 || video.videoWidth <= 0) return last
       // Same frame as last time: reuse the previous result.
-      if (video.currentTime === lastVideoTime) return smoothed
+      if (video.currentTime === lastVideoTime) return last
       lastVideoTime = video.currentTime
 
       // MediaPipe requires strictly increasing timestamps.
@@ -68,13 +72,9 @@ export async function createFaceTracker(): Promise<FaceTracker> {
       lastTimestamp = timestamp
 
       const result = landmarker.detectForVideo(video, timestamp)
-      const landmarks = result.faceLandmarks[0]
-      const geometry = landmarks
-        ? geometryFromLandmarks(landmarks, video.videoWidth, video.videoHeight)
-        : null
-
-      smoothed = geometry ? smoothGeometry(smoothed, geometry, SMOOTHING_ALPHA) : null
-      return smoothed
+      const data = result.facialTransformationMatrixes?.[0]?.data
+      last = { matrix: data ? Float32Array.from(data) : null }
+      return last
     },
     close() {
       landmarker.close()

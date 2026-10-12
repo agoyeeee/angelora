@@ -15,6 +15,11 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    // three.js (face filters) is lazy-loaded on demand, so its chunk may exceed
+    // the default 500 kB warning without affecting first load.
+    chunkSizeWarningLimit: 800,
+  },
   test: {
     globals: true,
     environment: 'jsdom',
