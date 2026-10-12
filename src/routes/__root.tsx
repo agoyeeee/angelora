@@ -1,26 +1,77 @@
-import { Link, Outlet, ScrollRestoration, createRootRoute } from '@tanstack/react-router'
-import { MotionConfig } from 'motion/react'
+import {
+  Link,
+  Outlet,
+  ScrollRestoration,
+  createRootRoute,
+} from '@tanstack/react-router'
+import { motion, MotionConfig } from 'motion/react'
+import { Camera, Home } from 'lucide-react'
+import { PageTransition } from '../components/motion/PageTransition'
+import { buttonVariants } from '../components/ui/button-variants'
+import { Eyebrow } from '../components/ui/Eyebrow'
+import { fadeRise } from '../components/motion/variants'
+import { SessionProvider } from '../features/photobooth/session-provider'
+
+function FilmPerforations({ className }: { className?: string }) {
+  return (
+    <div
+      aria-hidden
+      className={
+        'flex items-center justify-center gap-2.5 px-6 ' + (className ?? '')
+      }
+    >
+      {Array.from({ length: 12 }).map((_, i) => (
+        <span
+          key={i}
+          className="size-2.5 rounded-[3px] bg-white/8"
+        />
+      ))}
+    </div>
+  )
+}
 
 function NotFoundPage() {
   return (
-    <main className="grid min-h-dvh place-items-center px-6">
-      <div className="w-full max-w-md rounded-card border border-white/10 bg-ink-850 p-8 text-center shadow-2xl">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-fog-500">
-          Error 404
-        </p>
-        <h1 className="mt-4 font-display text-3xl font-semibold text-fog-100">
-          This frame is empty
-        </h1>
-        <p className="mt-3 text-sm text-fog-500">
-          The page you were looking for does not exist.
-        </p>
-        <Link
-          to="/"
-          className="mt-6 inline-flex items-center justify-center rounded-full bg-lavender-500 px-6 py-3 text-sm font-semibold text-ink-950 transition hover:bg-lavender-400"
-        >
-          Back to home
-        </Link>
-      </div>
+    <main className="grid min-h-dvh place-items-center px-6 py-16">
+      <motion.div
+        variants={fadeRise}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-md overflow-hidden rounded-card border border-white/10 bg-ink-850 py-4 text-center shadow-panel"
+      >
+        <FilmPerforations className="opacity-70" />
+
+        <div className="px-8 py-9">
+          <div className="mx-auto grid size-12 place-items-center rounded-tile border border-white/10 bg-ink-800 text-lavender-400">
+            <Camera className="size-6" aria-hidden />
+          </div>
+
+          <Eyebrow className="mt-6 justify-center">Error 404</Eyebrow>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-fog-100">
+            This frame is empty
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-fog-400">
+            The page you were looking for does not exist. Check the address, or
+            head back and take a strip instead.
+          </p>
+
+          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link to="/" className={buttonVariants()}>
+              <Home aria-hidden />
+              Back to home
+            </Link>
+            <Link
+              to="/booth"
+              className={buttonVariants({ variant: 'secondary' })}
+            >
+              <Camera aria-hidden />
+              Start Photobooth
+            </Link>
+          </div>
+        </div>
+
+        <FilmPerforations className="opacity-70" />
+      </motion.div>
     </main>
   )
 }
@@ -28,8 +79,14 @@ function NotFoundPage() {
 function RootLayout() {
   return (
     <MotionConfig reducedMotion="user">
-      <Outlet />
-      <ScrollRestoration />
+      {/* Shared in-memory booth session: survives /booth <-> /result navigation
+          and resets on a full reload (PRD §1.2 / FR-04). */}
+      <SessionProvider>
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
+        <ScrollRestoration />
+      </SessionProvider>
     </MotionConfig>
   )
 }
