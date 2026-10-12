@@ -9,10 +9,9 @@ import { StatusMessage } from '../components/ui/StatusMessage'
 import { buttonVariants } from '../components/ui/button-variants'
 import { StripPreview } from '../components/result/StripPreview'
 import { FilterPicker } from '../components/result/FilterPicker'
-import { FramePicker } from '../components/result/FramePicker'
 import { ResultActions } from '../components/result/ResultActions'
 import { fadeRise, staggerContainer } from '../components/motion/variants'
-import type { FilterId, FrameId } from '../features/photobooth/types'
+import type { FilterId } from '../features/photobooth/types'
 
 export const Route = createFileRoute('/result')({
   component: ResultPage,
@@ -157,7 +156,7 @@ function ResultPage() {
                 Little moments, printed.
               </h1>
               <p className="mt-3 max-w-lg text-sm leading-relaxed text-fog-400 sm:text-base">
-                Check the filter and frame, then download your strip. Everything
+                Pick a filter, then download your strip. Everything
                 is stitched together in your browser — nothing leaves your
                 device.
               </p>
@@ -181,16 +180,6 @@ function ResultPage() {
                     dispatch({ type: 'setFilter', filter })
                   }
                   sourceUrl={firstShotUrl}
-                />
-                <div
-                  role="presentation"
-                  className="my-6 h-px bg-white/8"
-                />
-                <FramePicker
-                  value={session.frame}
-                  onChange={(frame: FrameId) =>
-                    dispatch({ type: 'setFrame', frame })
-                  }
                 />
               </Card>
 

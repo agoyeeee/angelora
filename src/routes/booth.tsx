@@ -8,9 +8,11 @@ import { useShotUrls } from '../features/photobooth/hooks/useShotUrls'
 import { CAMERA_MESSAGES, captureFrame } from '../features/photobooth/camera-service'
 import type {
   CountdownSeconds,
+  FrameId,
   ShotCount,
 } from '../features/photobooth/types'
 import { Button } from '../components/ui/Button'
+import { Card } from '../components/ui/Card'
 import { Eyebrow } from '../components/ui/Eyebrow'
 import { StatusMessage } from '../components/ui/StatusMessage'
 import {
@@ -22,6 +24,7 @@ import { BoothHeader } from '../components/booth/BoothHeader'
 import { CameraStage } from '../components/booth/CameraStage'
 import { CameraStatusPanel } from '../components/booth/CameraStatusPanel'
 import { ShotGrid } from '../components/booth/ShotGrid'
+import { FramePicker } from '../components/result/FramePicker'
 import { SessionSettings } from '../components/booth/SessionSettings'
 import { DevicePicker } from '../components/booth/DevicePicker'
 import { BoothActions } from '../components/booth/BoothActions'
@@ -239,8 +242,8 @@ function BoothPage() {
                 Set up your shot
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-fog-300 sm:text-base">
-                Turn on your camera, choose how many photos you want, then start
-                the session. Your camera stays off until you say go, and nothing
+                Turn on your camera, pick a frame and how many photos you want,
+                then start the session. Your camera stays off until you say go, and nothing
                 leaves your device.
               </p>
             </motion.header>
@@ -272,6 +275,19 @@ function BoothPage() {
                     onTurnOn={camera.start}
                     onRetry={camera.retry}
                   />
+                </motion.div>
+
+                <motion.div variants={fadeRise}>
+                  <Card className="p-5 sm:p-6">
+                    <FramePicker
+                      value={session.frame}
+                      disabled={capturing}
+                      gridClassName="grid-cols-3 sm:grid-cols-4 lg:grid-cols-5"
+                      onChange={(frame: FrameId) =>
+                        dispatch({ type: 'setFrame', frame })
+                      }
+                    />
+                  </Card>
                 </motion.div>
 
                 <motion.div variants={fadeRise}>
