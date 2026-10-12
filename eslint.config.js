@@ -48,6 +48,31 @@ export default tseslint.config([
     },
   },
   {
+    // PRD §10: keep the photobooth logic modules (camera-service, canvas-composer,
+    // filters, frames, session-reducer) free of React so they stay testable and
+    // replaceable without touching the UI.
+    files: [
+      'src/features/photobooth/{camera-service,canvas-composer,filters,frames,session-reducer}.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            'react',
+            'react/*',
+            'react-dom',
+            'react-dom/*',
+            'motion',
+            'motion/*',
+            '@tanstack/react-router',
+            '@tanstack/react-router/*',
+          ],
+        },
+      ],
+    },
+  },
+  {
     // Node-context config/tooling files.
     files: ['*.config.{js,ts}', 'e2e/**/*.ts'],
     languageOptions: {

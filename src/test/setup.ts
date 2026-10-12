@@ -88,3 +88,34 @@ HTMLCanvasElement.prototype.getContext = vi.fn(
 HTMLCanvasElement.prototype.toDataURL = vi.fn(
   () => 'data:image/png;base64,ZmFrZQ==',
 )
+
+// jsdom's toBlob is unimplemented without the optional `canvas` package: the
+// callback is never invoked, so any `await new Promise(r => canvas.toBlob(r))`
+// would hang. Provide a working stub that resolves to a PNG Blob.
+HTMLCanvasElement.prototype.toBlob = vi.fn(
+  (callback: BlobCallback) =>
+    callback(new Blob([new Uint8Array()], { type: 'image/png' })),
+) as unknown as typeof HTMLCanvasElement.prototype.toBlob
+
+// jsdom media elements: allow srcObject assignment and make play() resolve.
+Object.defineProperty(HTMLMediaElement.prototype, 'srcObject', {
+  configurable: true,
+  writable: true,
+  value: null,
+})
+HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined)
+
+/**
+ * jsdom videos report 0x0 dimensions and never fire `loadedmetadata`. Attach
+ * mock dimensions and dispatch the event so capture code that waits for video
+ * metadata resolves in tests.
+ */
+export function mockVideoReady(
+  video: HTMLVideoElement,
+  width = 1280,
+  height = 720,
+): void {
+  Object.defineProperty(video, 'videoWidth', { configurable: true, value: width })
+  Object.defineProperty(video, 'videoHeight', { configurable: true, value: height })
+  video.dispatchEvent(new Event('loadedmetadata'))
+}
