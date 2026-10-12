@@ -10,6 +10,7 @@ import type {
   CapturedShot,
   CountdownSeconds,
   FilterId,
+  EffectId,
   FrameId,
   ShotCount,
 } from './types'
@@ -24,6 +25,7 @@ export type SessionAction =
   | { type: 'setCountdown'; countdownSeconds: CountdownSeconds }
   | { type: 'setFilter'; filter: FilterId }
   | { type: 'setFrame'; frame: FrameId }
+  | { type: 'setEffect'; effect: EffectId }
   | { type: 'setMirrorPreview'; mirrorPreview: boolean }
   | { type: 'setMirrorOutput'; mirrorOutput: boolean }
   | { type: 'resetSession' }
@@ -90,6 +92,9 @@ export function sessionReducer(
 
     case 'setFrame':
       return { ...state, frame: action.frame }
+
+    case 'setEffect':
+      return { ...state, effect: action.effect }
 
     case 'setMirrorPreview':
       return { ...state, mirrorPreview: action.mirrorPreview }

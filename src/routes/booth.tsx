@@ -8,6 +8,7 @@ import { useShotUrls } from '../features/photobooth/hooks/useShotUrls'
 import { CAMERA_MESSAGES, captureFrame } from '../features/photobooth/camera-service'
 import type {
   CountdownSeconds,
+  EffectId,
   FrameId,
   ShotCount,
 } from '../features/photobooth/types'
@@ -31,6 +32,8 @@ import { BoothActions } from '../components/booth/BoothActions'
 import { ConfirmDialog } from '../components/booth/ConfirmDialog'
 import { useCamera } from '../components/booth/useCamera'
 import { useCountdown } from '../components/booth/useCountdown'
+import { useFaceEffect } from '../components/booth/useFaceEffect'
+import { EffectPicker } from '../components/booth/EffectPicker'
 
 export const Route = createFileRoute('/booth')({
   component: BoothPage,
@@ -60,6 +63,11 @@ function BoothPage() {
   const camera = useCamera()
   const countdown = useCountdown()
   const urls = useShotUrls(session.shots)
+  const faceEffect = useFaceEffect({
+    videoRef: camera.videoRef,
+    effect: session.effect,
+    active: camera.status === 'ready' && camera.isVideoReady,
+  })
 
   const [capturing, setCapturing] = useState(false)
   const [flash, setFlash] = useState(false)
@@ -128,6 +136,7 @@ function BoothPage() {
         // Capture failure must not add a blank shot (PRD §11).
         const shot = await captureFrame(video, {
           mirror: sessionRef.current.mirrorOutput,
+          overlay: faceEffect.drawOverlay,
         })
         if (abortRef.current) break
 
@@ -242,7 +251,7 @@ function BoothPage() {
                 Set up your shot
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-fog-300 sm:text-base">
-                Turn on your camera, pick a frame and how many photos you want,
+                Turn on your camera, pick a face filter and frame, choose how many photos you want,
                 then start the session. Your camera stays off until you say go, and nothing
                 leaves your device.
               </p>
@@ -260,6 +269,8 @@ function BoothPage() {
                     countdownValue={countdown.value}
                     flash={flash}
                     cameraLabel={cameraLabel}
+                    effectCanvasRef={faceEffect.canvasRef}
+                    effectStatus={faceEffect.status}
                   />
                 </motion.div>
 
@@ -278,7 +289,15 @@ function BoothPage() {
                 </motion.div>
 
                 <motion.div variants={fadeRise}>
-                  <Card className="p-5 sm:p-6">
+                  <Card className="flex flex-col gap-6 p-5 sm:p-6">
+                    <EffectPicker
+                      value={session.effect}
+                      disabled={capturing}
+                      onChange={(effect: EffectId) =>
+                        dispatch({ type: 'setEffect', effect })
+                      }
+                    />
+                    <div role="presentation" className="h-px bg-white/8" />
                     <FramePicker
                       value={session.frame}
                       disabled={capturing}

@@ -77,7 +77,7 @@ const FRAME_DATE_FONT_PX = 30
 const STICKER_ROW_COUNT = 13
 const STICKER_COLUMN_STEP = 96
 const STICKER_FOOTER_SIZE = 96
-const EMOJI_FONT_FAMILY = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif'
+export const EMOJI_FONT_FAMILY = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif'
 
 /** Theme table (also the lookup for {@link getFrameTheme}). */
 const THEMES: Readonly<Record<FrameId, FrameTheme>> = {

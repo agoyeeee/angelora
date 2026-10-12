@@ -66,6 +66,11 @@ const FINE_PRINT: readonly { term: string; detail: string }[] = [
       'Granted by your browser only after you tap Start Photobooth. You can revoke it at any time in your browser settings.',
   },
   {
+    term: 'Face filters',
+    detail:
+      'Face filters find your face on your own device, using a model served from this site. No frame or face data is sent anywhere, and nothing is stored.',
+  },
+  {
     term: 'Session storage',
     detail:
       'Photos live in tab memory only. Images are never written to localStorage or sessionStorage.',

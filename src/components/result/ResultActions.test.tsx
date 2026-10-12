@@ -43,6 +43,7 @@ const session: BoothSession = {
   countdownSeconds: 3,
   filter: 'original',
   frame: 'clean',
+  effect: 'none',
   mirrorPreview: true,
   mirrorOutput: true,
 }
