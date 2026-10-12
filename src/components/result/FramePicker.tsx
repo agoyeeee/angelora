@@ -58,6 +58,10 @@ function FrameSwatch({ theme }: { theme: FrameTheme }) {
 export type FramePickerProps = {
   value: FrameId
   onChange: (id: FrameId) => void
+  /** Locks the picker (e.g. while a capture sequence is running). */
+  disabled?: boolean
+  /** Override the per-group grid, for hosts wider/narrower than the default. */
+  gridClassName?: string
 }
 
 const GROUPS: readonly { id: FrameGroup; label: string }[] = [
@@ -65,7 +69,12 @@ const GROUPS: readonly { id: FrameGroup; label: string }[] = [
   { id: 'fun', label: 'Lucu-lucuan' },
 ]
 
-export function FramePicker({ value, onChange }: FramePickerProps) {
+export function FramePicker({
+  value,
+  onChange,
+  disabled = false,
+  gridClassName = 'grid-cols-2 sm:grid-cols-4',
+}: FramePickerProps) {
   return (
     <div role="group" aria-label="Frame">
       <Eyebrow>Frame</Eyebrow>
@@ -74,13 +83,14 @@ export function FramePicker({ value, onChange }: FramePickerProps) {
           <p className="mt-4 font-mono text-[0.65rem] uppercase tracking-[0.24em] text-fog-500">
             {group.label}
           </p>
-          <div className="mt-2 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+          <div className={`mt-2 grid gap-2.5 ${gridClassName}`}>
             {FRAMES.filter((frame) => frame.group === group.id).map((frame) => (
               <PickerCard
                 key={frame.id}
                 label={frame.label}
                 ariaLabel={`${frame.label} frame`}
                 selected={frame.id === value}
+                disabled={disabled}
                 onSelect={() => onChange(frame.id)}
                 preview={<FrameSwatch theme={frame.theme} />}
               />

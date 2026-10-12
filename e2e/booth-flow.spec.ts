@@ -26,6 +26,9 @@ test.describe('photobooth session', () => {
       timeout: 30_000,
     })
 
+    // The frame is chosen up front, before the first shot.
+    await page.getByRole('button', { name: 'Pizza frame' }).click()
+
     await page.getByRole('button', { name: 'Start session' }).click()
 
     // The booth auto-advances to the result page once the strip is complete.
@@ -33,6 +36,12 @@ test.describe('photobooth session', () => {
     await expect(
       page.getByRole('heading', { name: 'Little moments, printed.' }),
     ).toBeVisible()
+
+    // The pick carries over, and the result page no longer offers a frame picker.
+    await expect(
+      page.getByRole('img', { name: /Pizza frame/ }),
+    ).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Pizza frame' })).toHaveCount(0)
 
     const downloadPromise = page.waitForEvent('download')
     await page.getByRole('button', { name: 'Download PNG' }).click()

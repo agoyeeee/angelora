@@ -23,4 +23,15 @@ describe('FramePicker', () => {
     await user.click(screen.getByRole('button', { name: 'Midnight frame' }))
     expect(onChange).toHaveBeenCalledWith('midnight')
   })
+
+  it('locks every option when disabled', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<FramePicker value="clean" onChange={onChange} disabled />)
+
+    const pizza = screen.getByRole('button', { name: 'Pizza frame' })
+    expect(pizza).toBeDisabled()
+    await user.click(pizza)
+    expect(onChange).not.toHaveBeenCalled()
+  })
 })

@@ -23,6 +23,7 @@ export type PickerCardProps = {
   ariaLabel: string
   /** Preview content; must set its own aspect ratio. */
   preview: ReactNode
+  disabled?: boolean
   className?: string
 }
 
@@ -32,6 +33,7 @@ export function PickerCard({
   onSelect,
   ariaLabel,
   preview,
+  disabled = false,
   className,
 }: PickerCardProps) {
   return (
@@ -40,11 +42,12 @@ export function PickerCard({
       aria-pressed={selected}
       aria-label={ariaLabel}
       onClick={onSelect}
+      disabled={disabled}
       className={cn(
         'group relative flex w-full flex-col rounded-tile border p-2 text-left',
         'transition-[transform,background-color,border-color,box-shadow] duration-200 ease-[var(--ease-fluid)]',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lavender-400',
-        'motion-safe:active:scale-[0.98]',
+        'motion-safe:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100',
         selected
           ? 'border-lavender-400 bg-lavender-500/12 shadow-glow-lavender'
           : 'border-white/10 bg-ink-800/60 hover:border-white/20 hover:bg-ink-800',
