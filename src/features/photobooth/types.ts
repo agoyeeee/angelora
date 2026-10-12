@@ -6,7 +6,27 @@
 
 export type FilterId = 'original' | 'warm' | 'bw' | 'soft' | 'vivid'
 
-export type FrameId = 'clean' | 'midnight' | 'lavender' | 'peach'
+export type FrameId =
+  | 'clean'
+  | 'midnight'
+  | 'lavender'
+  | 'peach'
+  | 'kucing'
+  | 'boba'
+  | 'kos'
+  | 'pizza'
+  | 'alien'
+  | 'hantu'
+  | 'kodok'
+  | 'bucin'
+  | 'unicorn'
+  | 'arcade'
+  | 'pantai'
+  | 'sultan'
+  | 'panda'
+  | 'ultah'
+  | 'komik'
+  | 'dino'
 
 export type ShotCount = 3 | 4
 
