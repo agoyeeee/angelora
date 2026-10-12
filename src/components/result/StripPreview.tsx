@@ -1,7 +1,12 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { computeStripLayout } from '../../features/photobooth/canvas-composer'
 import { FILTERS, getFilterCss } from '../../features/photobooth/filters'
-import { FRAMES, getFrameTheme } from '../../features/photobooth/frames'
+import {
+  FRAMES,
+  computeStickers,
+  getFrameTheme,
+  getPatternCss,
+} from '../../features/photobooth/frames'
 import { cn, formatDateLabel } from '../../lib/utils'
 import { crossfade } from '../motion/variants'
 import type { BoothSession } from '../../features/photobooth/types'
@@ -32,6 +37,8 @@ export function StripPreview({ session, urls, className }: StripPreviewProps) {
   const theme = getFrameTheme(session.frame)
   const filterCss = getFilterCss(session.filter)
   const caption = formatDateLabel()
+  const stickers = computeStickers(layout, theme)
+  const patternCss = theme.pattern ? getPatternCss(theme.pattern, layout.width) : undefined
 
   const filterLabel =
     FILTERS.find((option) => option.id === session.filter)?.label ?? session.filter
@@ -93,7 +100,9 @@ export function StripPreview({ session, urls, className }: StripPreviewProps) {
               className="absolute inset-0 shadow-panel"
               style={{
                 borderRadius: '0.7rem',
-                background: theme.background,
+                backgroundColor: theme.background,
+                ...patternCss,
+                backgroundOrigin: 'border-box',
                 border: `0.84cqw solid ${theme.border}`,
               }}
             >
@@ -134,7 +143,7 @@ export function StripPreview({ session, urls, className }: StripPreviewProps) {
               {/* Accent separators, drawn in the gaps exactly like the composer. */}
               {layout.slots.map((slot, index) => {
                 const next = layout.slots[index + 1]
-                if (!next) return null
+                if (!next || stickers.length > 0) return null
                 const gapTop = slot.y + slot.height
                 const gapHeight = next.y - gapTop
                 if (gapHeight <= 0) return null
@@ -156,9 +165,26 @@ export function StripPreview({ session, urls, className }: StripPreviewProps) {
                 )
               })}
 
-              {/* Footer caption — the same date the export prints. */}
+              {/* Emoji stickers — same placements the export draws (computeStickers). */}
+              {stickers.map((sticker, index) => (
+                <span
+                  key={`sticker-${index}`}
+                  aria-hidden
+                  className="pointer-events-none absolute block select-none leading-none"
+                  style={{
+                    left: pctX(sticker.x),
+                    top: pctY(sticker.y),
+                    fontSize: `${((sticker.size / layout.width) * 100).toFixed(3)}cqw`,
+                    transform: `translate(-50%, -50%) rotate(${sticker.rotation}rad)`,
+                  }}
+                >
+                  {sticker.char}
+                </span>
+              ))}
+
+              {/* Footer — optional tagline above the same date the export prints. */}
               <span
-                className="absolute flex items-center justify-center"
+                className="absolute flex flex-col items-center justify-center gap-[1cqw]"
                 style={{
                   left: pctX(layout.footer.x),
                   top: pctY(layout.footer.y),
@@ -167,6 +193,11 @@ export function StripPreview({ session, urls, className }: StripPreviewProps) {
                   color: theme.text,
                 }}
               >
+                {theme.tagline ? (
+                  <span className="text-center text-[length:clamp(0.6rem,5cqw,1.25rem)] font-extrabold leading-none tracking-tight">
+                    {theme.tagline}
+                  </span>
+                ) : null}
                 <span className="font-mono text-[length:clamp(0.5rem,4cqw,1rem)] uppercase tracking-[0.32em]">
                   {caption}
                 </span>

@@ -13,6 +13,12 @@ no upload. Everything runs on your device.
 2. **Pose** — a short countdown runs before each shot (3 or 5 seconds).
 3. **Save your strip** — choose a filter and frame, then download the PNG.
 
+Frames come in two groups: four **Classic** papers and 16 **Lucu-lucuan** (funny)
+themes — Meong, Boba, Kos, Pizza, Alien, Hantu, Kodok, Bucin, Unicorn, Arcade,
+Pantai, Sultan, Panda, Ultah, Komik, Dino — each with a background pattern, an
+emoji sticker border and a tagline. Add one in `src/features/photobooth/frames.ts`
+(plus its id in `types.ts`).
+
 Photobooth flow: `/` (landing) → `/booth` (capture) → `/result` (compose &
 download). Privacy details live at `/privacy`.
 

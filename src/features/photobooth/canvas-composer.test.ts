@@ -207,6 +207,7 @@ describe('composeStrip', () => {
       rect: vi.fn(),
       clip: vi.fn(),
       translate: vi.fn(),
+      rotate: vi.fn(),
       scale: vi.fn(),
       drawImage,
       fillRect: vi.fn(),
