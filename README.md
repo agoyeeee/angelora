@@ -37,7 +37,7 @@ download). Privacy details live at `/privacy`.
 - **Camera / images**: `navigator.mediaDevices.getUserMedia()` + Canvas 2D
 - **Tests**: Vitest + React Testing Library; Playwright (E2E)
 - **Lint**: ESLint (flat config) + TypeScript checks
-- **Hosting**: Cloudflare Pages (static SPA)
+- **Hosting**: Static SPA — Cloudflare Pages, or self-hosted (nginx + Cloudflare Tunnel)
 
 ## Requirements
 
@@ -88,6 +88,24 @@ FlashFrame never starts the camera automatically.
    them on the production preview.
 
 No environment variables or secrets are required for the MVP.
+
+## Live deployment (self-hosted)
+
+Live: **https://angelora.agoyeeee.site**
+
+The production build (`dist/`) is served as a static SPA behind **nginx** (a
+name-based vhost on loopback with an SPA `try_files … /index.html` fallback) and
+published through a **Cloudflare Tunnel**, so TLS terminates at Cloudflare's
+edge. Security headers (`X-Content-Type-Options`, `Referrer-Policy`,
+`Permissions-Policy`) are applied by the nginx vhost (the bundled `public/_headers`
+file covers the Cloudflare Pages path instead).
+
+To redeploy after a fresh build, publish the new `dist/` to the web root and
+reload — no application server or environment variables are involved. Server
+host details and credentials are intentionally **not** recorded in this repo.
+
+Cloudflare Pages remains a supported alternative host (see above); its SPA
+routing relies on the absence of a top-level `404.html`.
 
 ## CI
 
