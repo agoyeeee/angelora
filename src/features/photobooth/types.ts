@@ -28,6 +28,21 @@ export type FrameId =
   | 'komik'
   | 'dino'
 
+/** Face-tracked AR effect drawn on the live camera and baked into each shot. */
+export type EffectId =
+  | 'none'
+  | 'dog'
+  | 'cat'
+  | 'bunny'
+  | 'crown'
+  | 'shades'
+  | 'hearts'
+  | 'clown'
+  | 'devil'
+  | 'halo'
+  | 'mustache'
+  | 'flower'
+
 export type ShotCount = 3 | 4
 
 export type CountdownSeconds = 3 | 5
@@ -60,6 +75,7 @@ export type BoothSession = {
   countdownSeconds: CountdownSeconds
   filter: FilterId
   frame: FrameId
+  effect: EffectId
   mirrorPreview: boolean
   mirrorOutput: boolean
 }
@@ -74,6 +90,7 @@ export const DEFAULT_SESSION: BoothSession = {
   countdownSeconds: 3,
   filter: 'original',
   frame: 'clean',
+  effect: 'none',
   mirrorPreview: true,
   mirrorOutput: true,
 }

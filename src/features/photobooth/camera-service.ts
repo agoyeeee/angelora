@@ -303,7 +303,16 @@ export function createShotId(): string {
  */
 export async function captureFrame(
   video: HTMLVideoElement,
-  opts: { mirror?: boolean; maxWidth?: number } = {},
+  opts: {
+    mirror?: boolean
+    maxWidth?: number
+    /**
+     * Paints extra content (e.g. a face effect) over the video frame. Called in
+     * the canvas' own pixel space before any mirror is undone, so the overlay
+     * is mirrored together with the video.
+     */
+    overlay?: (ctx: CanvasRenderingContext2D, width: number, height: number) => void
+  } = {},
 ): Promise<CapturedShot> {
   const sourceWidth = video.videoWidth
   const sourceHeight = video.videoHeight
@@ -336,6 +345,7 @@ export async function captureFrame(
     ctx.scale(-1, 1)
   }
   ctx.drawImage(video, 0, 0, width, height)
+  opts.overlay?.(ctx, width, height)
   if (opts.mirror) {
     ctx.restore()
   }

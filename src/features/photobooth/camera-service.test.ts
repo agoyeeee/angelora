@@ -272,6 +272,30 @@ describe('captureFrame', () => {
     getContext.mockRestore()
   })
 
+  it('paints the overlay after the video, before the mirror is undone', async () => {
+    const calls: string[] = []
+    const ctx = {
+      save: vi.fn(() => calls.push('save')),
+      translate: vi.fn(),
+      scale: vi.fn(),
+      restore: vi.fn(() => calls.push('restore')),
+      drawImage: vi.fn(() => calls.push('drawImage')),
+    }
+    const getContext = vi
+      .spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockReturnValue(ctx as unknown as CanvasRenderingContext2D)
+    const overlay = vi.fn(() => calls.push('overlay'))
+
+    const video = document.createElement('video')
+    mockVideoReady(video, 320, 240)
+
+    await captureFrame(video, { mirror: true, overlay })
+
+    expect(overlay).toHaveBeenCalledWith(ctx, 320, 240)
+    expect(calls).toEqual(['save', 'drawImage', 'overlay', 'restore'])
+    getContext.mockRestore()
+  })
+
   it('throws instead of returning an empty shot when the video is not ready', async () => {
     const video = document.createElement('video')
 

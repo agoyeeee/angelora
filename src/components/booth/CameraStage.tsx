@@ -1,10 +1,11 @@
 import type { RefObject } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { CameraOff, FlipHorizontal, LoaderCircle } from 'lucide-react'
+import { CameraOff, FlipHorizontal, LoaderCircle, ScanFace } from 'lucide-react'
 import type { CameraStatus } from '../../features/photobooth/types'
 import { cn } from '../../lib/utils'
 import { EASE_FLUID } from '../motion/variants'
 import { CountdownOverlay } from './CountdownOverlay'
+import type { FaceEffectStatus } from './useFaceEffect'
 
 export type CameraStageProps = {
   videoRef: RefObject<HTMLVideoElement | null>
@@ -17,6 +18,15 @@ export type CameraStageProps = {
   /** White capture flash flag (80–120ms). */
   flash: boolean
   cameraLabel: string | null
+  /** Canvas that the face effect paints on; it must sit exactly over the video. */
+  effectCanvasRef?: RefObject<HTMLCanvasElement | null>
+  effectStatus?: FaceEffectStatus
+}
+
+const EFFECT_STATUS_TEXT: Partial<Record<FaceEffectStatus, string>> = {
+  loading: 'Loading face filter…',
+  'no-face': 'Show your face to the camera',
+  error: 'Face filter unavailable on this device',
 }
 
 /** Decorative corner brackets that read as viewfinder marks (PRD §7.1). */
@@ -68,6 +78,8 @@ export function CameraStage({
   countdownValue,
   flash,
   cameraLabel,
+  effectCanvasRef,
+  effectStatus = 'off',
 }: CameraStageProps) {
   const live = status === 'ready'
 
@@ -83,6 +95,15 @@ export function CameraStage({
           className="absolute inset-0 size-full object-cover"
           style={mirrorPreview ? { transform: 'scaleX(-1)' } : undefined}
         />
+
+        {effectCanvasRef ? (
+          <canvas
+            ref={effectCanvasRef}
+            aria-hidden
+            className="pointer-events-none absolute inset-0 size-full object-cover"
+            style={mirrorPreview ? { transform: 'scaleX(-1)' } : undefined}
+          />
+        ) : null}
 
         {!live ? (
           <div className="absolute inset-0 grid place-items-center bg-ink-950">
@@ -142,6 +163,22 @@ export function CameraStage({
             </span>
           ) : null}
         </div>
+
+        {live && EFFECT_STATUS_TEXT[effectStatus] ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-12 flex justify-center px-4">
+            <span
+              role="status"
+              className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-ink-950/75 px-3.5 py-1.5 text-xs font-medium text-fog-200 backdrop-blur-sm"
+            >
+              {effectStatus === 'loading' ? (
+                <LoaderCircle className="size-3.5 motion-safe:animate-spin" aria-hidden />
+              ) : (
+                <ScanFace className="size-3.5" aria-hidden />
+              )}
+              {EFFECT_STATUS_TEXT[effectStatus]}
+            </span>
+          </div>
+        ) : null}
 
         <CountdownOverlay value={countdownValue} />
         <CaptureFlash active={flash} />

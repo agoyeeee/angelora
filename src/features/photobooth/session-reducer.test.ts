@@ -152,4 +152,9 @@ describe('isSessionComplete', () => {
     })
     expect(isSessionComplete(state)).toBe(true)
   })
+
+  it('setEffect changes only the face effect', () => {
+    const next = sessionReducer(DEFAULT_SESSION, { type: 'setEffect', effect: 'dog' })
+    expect(next).toEqual({ ...DEFAULT_SESSION, effect: 'dog' })
+  })
 })

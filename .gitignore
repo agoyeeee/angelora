@@ -34,3 +34,6 @@ pnpm-debug.log*
 
 # Deepwork session state (git-local)
 .slim/deepwork/
+
+# Copied from node_modules by scripts/copy-mediapipe-wasm.mjs
+public/mediapipe/

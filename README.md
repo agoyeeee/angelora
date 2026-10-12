@@ -9,11 +9,13 @@ no upload. Everything runs on your device.
 
 ## How it works
 
-1. **Start camera** — grant camera access when your browser asks.
+1. **Start camera** — grant camera access when your browser asks. Optionally pick a
+   **face filter** (dog ears, cat whiskers, crown, shades, …) that follows your face
+   live and is baked into each shot, and a **frame** for the strip.
 2. **Pose** — a short countdown runs before each shot (3 or 5 seconds).
-3. **Save your strip** — choose a filter and frame, then download the PNG.
+3. **Save your strip** — choose a colour filter, then download the PNG.
 
-Frames come in two groups: four **Classic** papers and 16 **Lucu-lucuan** (funny)
+Frames are picked in the booth, before the first shot, and come in two groups: four **Classic** papers and 16 **Lucu-lucuan** (funny)
 themes — Meong, Boba, Kos, Pizza, Alien, Hantu, Kodok, Bucin, Unicorn, Arcade,
 Pantai, Sultan, Panda, Ultah, Komik, Dino — each with a background pattern, an
 emoji sticker border and a tagline. Add one in `src/features/photobooth/frames.ts`
@@ -21,6 +23,16 @@ emoji sticker border and a tagline. Add one in `src/features/photobooth/frames.t
 
 Photobooth flow: `/` (landing) → `/booth` (capture) → `/result` (compose &
 download). Privacy details live at `/privacy`.
+
+## Face filters
+
+Face-tracked effects use MediaPipe Face Landmarker, entirely in the browser. The
+WASM runtime is copied from `node_modules` into `public/mediapipe/` by
+`scripts/copy-mediapipe-wasm.mjs` (runs automatically before `dev` and `build`;
+the folder is ignored by version control) and the model lives in `public/models/`.
+Both are served from our own origin, and the library is lazy-loaded the first time
+a filter is chosen. Effects are drawn in `src/features/photobooth/face/effects.ts` —
+add one by extending `EffectId` in `types.ts` and the `DRAWERS`/`EFFECTS` tables.
 
 ## Privacy
 
