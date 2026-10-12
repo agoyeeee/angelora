@@ -107,11 +107,22 @@ host details and credentials are intentionally **not** recorded in this repo.
 Cloudflare Pages remains a supported alternative host (see above); its SPA
 routing relies on the absence of a top-level `404.html`.
 
-## CI
+## CI/CD
 
-`.github/workflows/ci.yml` runs on pull requests and pushes to `main`:
+**CI** (`.github/workflows/ci.yml`) runs on pull requests and pushes to `main`:
 `npm ci` → lint → typecheck → test → build. A PR that fails any step is not
 release-ready.
+
+**Deploy** (`.github/workflows/deploy.yml`) runs automatically after CI succeeds
+on `main` (or manually via *Actions → Deploy → Run workflow*): it builds the
+exact CI-tested commit and publishes `dist/` to the self-hosted web root behind
+nginx + Cloudflare Tunnel, then smoke-tests the live URL.
+
+It authenticates with a **dedicated deploy SSH key** whose entry on the server is
+restricted to a single forced command (`/usr/local/bin/ganjel-deploy-stdin`), so
+the key cannot open a shell — it can only deploy. Required repository secrets:
+`DEPLOY_SSH_KEY`, `DEPLOY_HOST`, `DEPLOY_USER`, `SSH_KNOWN_HOSTS`.
+
 
 ## Tested browsers & known limitations
 

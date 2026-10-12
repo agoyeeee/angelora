@@ -1,0 +1,68 @@
+name: Deploy
+
+on:
+  # Deploy only after the CI workflow finishes successfully on main.
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  # Allow an on-demand deploy from the Actions tab.
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ganjel
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & deploy → ganjel.agoyeeee.site
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout (exact CI-tested commit)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Upload build & deploy
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          # The deploy key is restricted to a single forced command on the
+          # server, so the remote argument is ignored and stdin is the payload.
+          tar -czf - -C dist . | ssh -i ~/.ssh/deploy_key \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            -o BatchMode=yes \
+            "$DEPLOY_USER@$DEPLOY_HOST" deploy
+
+      - name: Smoke test (live URL)
+        run: |
+          curl -fsS -o /dev/null -w 'live: %{http_code}\n' https://ganjel.agoyeeee.site/
+          curl -fsS -o /dev/null -w 'deep link /result: %{http_code}\n' https://ganjel.agoyeeee.site/result
