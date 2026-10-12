@@ -91,7 +91,7 @@ No environment variables or secrets are required for the MVP.
 
 ## Live deployment (self-hosted)
 
-Live: **https://angelora.agoyeeee.site**
+Live: **https://ganjel.agoyeeee.site**
 
 The production build (`dist/`) is served as a static SPA behind **nginx** (a
 name-based vhost on loopback with an SPA `try_files … /index.html` fallback) and
